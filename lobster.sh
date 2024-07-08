@@ -131,7 +131,6 @@ trap cleanup EXIT INT TERM
         [ -z "$remove_tmp_lobster" ] && remove_tmp_lobster=1
         [ -z "$json_output" ] && json_output=0
 
-        if
     }
 
     generate_desktop() {
