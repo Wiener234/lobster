@@ -111,7 +111,7 @@ trap cleanup EXIT INT TERM
         [ -f "$config_file" ] && . "${config_file}"
         [ -z "$base" ] && base="flixhq.to"
         case "$(uname -a)" in
-          *ndroid*) player="am start -n is.xyz.mpv/is.xyz.mpv.MPVActivity -e filepath" ;;     # Android OS (termux)
+        *ndroid*) player="am start -n is.xyz.mpv/is.xyz.mpv.MPVActivity" ;;     # Android OS (termux)
           *) [ -z "$player" ] && player="mpv";;
         esac
         [ -z "$download_dir" ] && download_dir="$PWD"
@@ -395,20 +395,20 @@ EOF
                 vlc_subs_links=$(printf "%s" "$subs_links" | sed 's/https\\:/https:/g; s/:\([^\/]\)/#\1/g')
                 vlc "$video_link" --meta-title "$displayed_title" --input-slave="$vlc_subs_links"
                 ;;
-            android | "am start -n is.xyz.mpv/is.xyz.mpv.MPVActivity -e filepath")
+            android | "am start -n is.xyz.mpv/is.xyz.mpv.MPVActivity")
                 [ -z "$continue_choice" ] && check_history
                 if [ "$history" = 1 ]; then
                     if [ -n "$subs_links" ]; then
                         if [ -n "$resume_from" ]; then
-                            "$player" --start="$resume_from" "$subs_arg"="$subs_links" --force-media-title="$displayed_title" "$video_link" 2>&1 | tee "$tmp_position"
+                            "$player" -e position "$resume_from" -e subs "$subs_links" -e filepath "$video_link" 2>&1 | tee "$tmp_position"
                         else
-                            "$player" --sub-file="$subs_links" --force-media-title="$displayed_title" "$video_link" 2>&1 | tee "$tmp_position"
+                            "$player" -e subs "$subs_links" -e filepath "$video_link" 2>&1 | tee "$tmp_position"
                         fi
                     else
                         if [ -n "$resume_from" ]; then
-                            "$player" --start="$resume_from" --force-media-title="$displayed_title" "$video_link" 2>&1 | tee "$tmp_position"
+                            "$player" -e position "$resume_from" -e filepath "$video_link" 2>&1 | tee "$tmp_position"
                         else
-                            "$player" --force-media-title="$displayed_title" "$video_link" 2>&1 | tee "$tmp_position"
+                            "$player" -e filepath "$video_link" 2>&1 | tee "$tmp_position"
                         fi
                     fi
 
@@ -416,24 +416,24 @@ EOF
                     progress=$($sed -nE "s@.*AV: ([0-9:]*) / ([0-9:]*) \(([0-9]*)%\).*@\3@p" "$tmp_position" | tail -1)
                     [ -n "$position" ] && send_notification "Stopped at" "5000" "$images_cache_dir/  $title ($media_type)  $media_id.jpg" "$position"
 
-                else
-                    if [ -n "$subs_links" ]; then
-                        if [ "$quiet_output" = 1 ]; then
-                            [ -z "$resume_from" ] && "$player" "$subs_arg"="$subs_links" --force-media-title="$displayed_title" "$video_link" >/dev/null 2>&1
-                            [ -n "$resume_from" ] && "$player" "$subs_arg"="$subs_links" --start="$resume_from" --force-media-title="$displayed_title" "$video_link" >/dev/null 2>&1
-                        else
-                            [ -z "$resume_from" ] && "$player" "$subs_arg"="$subs_links" --force-media-title="$displayed_title" "$video_link"
-                            [ -n "$resume_from" ] && "$player" "$subs_arg"="$subs_links" --start="$resume_from" --force-media-title="$displayed_title" "$video_link"
-                        fi
-                    else
-                        if [ "$quiet_output" = 1 ]; then
-                            [ -z "$resume_from" ] && "$player" --force-media-title="$displayed_title" "$video_link" >/dev/null 2>&1
-                            [ -n "$resume_from" ] && "$player" --start="$resume_from" --force-media-title="$displayed_title" "$video_link" >/dev/null 2>&1
-                        else
-                            [ -z "$resume_from" ] && "$player" --force-media-title="$displayed_title" "$video_link"
-                            [ -n "$resume_from" ] && "$player" --start="$resume_from" --force-media-title="$displayed_title" "$video_link"
-                        fi
-                    fi
+                # else
+                #     if [ -n "$subs_links" ]; then
+                #         if [ "$quiet_output" = 1 ]; then
+                #             [ -z "$resume_from" ] && "$player" "$subs_arg"="$subs_links" --force-media-title="$displayed_title" "$video_link" >/dev/null 2>&1
+                #             [ -n "$resume_from" ] && "$player" "$subs_arg"="$subs_links" --start="$resume_from" --force-media-title="$displayed_title" "$video_link" >/dev/null 2>&1
+                #         else
+                #             [ -z "$resume_from" ] && "$player" "$subs_arg"="$subs_links" --force-media-title="$displayed_title" "$video_link"
+                #             [ -n "$resume_from" ] && "$player" "$subs_arg"="$subs_links" --start="$resume_from" --force-media-title="$displayed_title" "$video_link"
+                #         fi
+                #     else
+                #         if [ "$quiet_output" = 1 ]; then
+                #             [ -z "$resume_from" ] && "$player" --force-media-title="$displayed_title" "$video_link" >/dev/null 2>&1
+                #             [ -n "$resume_from" ] && "$player" --start="$resume_from" --force-media-title="$displayed_title" "$video_link" >/dev/null 2>&1
+                #         else
+                #             [ -z "$resume_from" ] && "$player" --force-media-title="$displayed_title" "$video_link"
+                #             [ -n "$resume_from" ] && "$player" --start="$resume_from" --force-media-title="$displayed_title" "$video_link"
+                #         fi
+                #     fi
                 fi
                 ;;
             mpv | mpv.exe)
