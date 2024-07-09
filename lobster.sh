@@ -395,8 +395,7 @@ EOF
                 vlc_subs_links=$(printf "%s" "$subs_links" | sed 's/https\\:/https:/g; s/:\([^\/]\)/#\1/g')
                 vlc "$video_link" --meta-title "$displayed_title" --input-slave="$vlc_subs_links"
                 ;;
-            android)
-                player="am start -n is.xyz.mpv/is.xyz.mpv.MPVActivity -e filepath"
+            android | "am start -n is.xyz.mpv/is.xyz.mpv.MPVActivity -e filepath")
                 [ -z "$continue_choice" ] && check_history
                 if [ "$history" = 1 ]; then
                     if [ -n "$subs_links" ]; then
