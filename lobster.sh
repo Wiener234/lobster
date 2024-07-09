@@ -111,7 +111,7 @@ trap cleanup EXIT INT TERM
         [ -f "$config_file" ] && . "${config_file}"
         [ -z "$base" ] && base="flixhq.to"
         case "$(uname -a)" in
-        *ndroid*) player="am start -n is.xyz.mpv/is.xyz.mpv.MPVActivity" ;;     # Android OS (termux)
+        *ndroid*) player="am start -n is.xyz.mpv/is.xyz.mpv.MPVActivity -e filepath" ;;     # Android OS (termux)
           *) [ -z "$player" ] && player="mpv";;
         esac
         [ -z "$download_dir" ] && download_dir="$PWD"
@@ -478,7 +478,7 @@ EOF
                 fi
                 ;;
             *yncpla*) nohup "syncplay" "$video_link" -- --force-media-title="${displayed_title}" >/dev/null 2>&1 & ;;
-            *) $player "$video_link" ;;
+            *) $player "$video_link" -e subs "$subs_links" ;;
         esac
     }
 
